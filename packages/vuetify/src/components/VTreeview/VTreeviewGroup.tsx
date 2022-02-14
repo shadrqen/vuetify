@@ -39,7 +39,7 @@ export const VTreeviewGroup = genericComponent<new <T extends InternalTreeviewIt
     items?: T[]
   }
   $slots: MakeSlots<{
-    activator: [ListGroupActivatorSlot]
+    activator: [TreeviewGroupActivatorSlot]
     default: []
   }>
 }>()({
@@ -58,14 +58,15 @@ export const VTreeviewGroup = genericComponent<new <T extends InternalTreeviewIt
       type: null,
       default: undefined,
     },
+    leaf: Boolean,
 
     ...makeTagProps(),
   },
 
   setup (props, { slots }) {
-    const { isOpen, open, id } = useNestedItem(computed(() => props.value), true)
+    const { isOpen, open, id } = useNestedItem(computed(() => props.value), !props.leaf)
 
-    const activatorProps: Ref<ListGroupActivatorSlot['props']> = computed(() => ({
+    const activatorProps: Ref<TreeviewGroupActivatorSlot['props']> = computed(() => ({
       'onClick:prepend': (e: Event) => open(!isOpen.value, e),
       collapseIcon: props.collapseIcon,
       expandIcon: props.expandIcon,

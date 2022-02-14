@@ -34,6 +34,7 @@ export const VTreeviewChildren = genericComponent<new <T extends InternalTreevie
       return children ? (
         <VTreeviewGroup
           value={ itemProps?.value }
+          leaf={ !children }
         >
           {{
             default: () => (

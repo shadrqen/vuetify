@@ -7,6 +7,12 @@
 @use './variables' as *
 
 .v-treeview-item
+  display: flex
+  align-items: center
+
+  &:hover
+    background: rgba(0, 0, 0, 0.12)
+
   &__content
     display: flex
     align-items: center
@@ -20,6 +26,17 @@
     min-width: 40px
     display: flex
     justify-content: center
+
+  &__expand
+    position: relative
+
+  &__loading
+    position: absolute
+    top: 0
+    left: 0
+
+  &--select-on-click
+    cursor: pointer
 
 $base-padding: list.nth($treeview-item-padding, 2)
 .v-treeview
@@ -37,3 +54,12 @@ $base-padding: list.nth($treeview-item-padding, 2)
 .v-treeview-item--prepend,
 .v-treeview-group__items .v-treeview-item--prepend
   padding-inline-start: calc(#{$base-padding} + var(--indent-padding) + #{$treeview-item-checkbox-size}) !important
+
+.v-treeview-item
+  $root: &
+
+  @at-root
+    @include tools.density('v-treeview', $treeview-density) using ($modifier)
+      & #{$root}
+        min-height: $treeview-item-min-height + $modifier
+        padding: (list.nth($treeview-item-padding, 1) + $modifier) list.nth($treeview-item-padding, 2)

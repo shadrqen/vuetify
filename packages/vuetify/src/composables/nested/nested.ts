@@ -1,5 +1,5 @@
 import { useProxiedModel } from '@/composables/proxiedModel'
-import { getUid, propsFactory } from '@/util'
+import { getCurrentInstance, getUid, propsFactory } from '@/util'
 import { computed, inject, onBeforeUnmount, provide, ref } from 'vue'
 import { multipleOpenStrategy, singleOpenStrategy } from './openStrategies'
 import { classicSelectStrategy, independentSelectStrategy, leafSelectStrategy } from './selectStrategies'
@@ -102,6 +102,20 @@ export const useNested = (props: NestedProps) => {
     isUnmounted = true
   })
 
+  function getPath (id: string) {
+    const path: string[] = []
+    let parent: string | undefined = id
+
+    while (parent != null) {
+      path.unshift(parent)
+      parent = parents.value.get(parent)
+    }
+
+    return path
+  }
+
+  const vm = getCurrentInstance('nested')
+
   const nested: NestedProvide = {
     id: ref(),
     root: {
@@ -117,7 +131,6 @@ export const useNested = (props: NestedProps) => {
         return arr
       }),
       register: (id, parentId, isGroup) => {
-        console.log('register', id, parentId, isGroup)
         parentId && id !== parentId && parents.value.set(id, parentId)
 
         isGroup && children.value.set(id, [])
@@ -140,6 +153,8 @@ export const useNested = (props: NestedProps) => {
         selected.value.delete(id)
       },
       open: (id, value, event) => {
+        vm.emit('click:expand', { id, value, path: getPath(id) })
+
         const newOpened = openStrategy.value({
           id,
           value,
@@ -186,7 +201,7 @@ export const useNestedItem = (id: Ref<string | undefined>, isGroup: boolean) => 
     select: (selected: boolean, e: Event) => parent.root.select(computedId.value, selected, e),
     isSelected: computed(() => parent.root.selected.value.get(computedId.value) === 'on'),
     isIndeterminate: computed(() => parent.root.selected.value.get(computedId.value) === 'indeterminate'),
-    isLeaf: computed(() => (parent.root.children.value.get(computedId.value)?.length ?? 0) <= 0),
+    isLeaf: computed(() => !parent.root.children.value.get(computedId.value)),
   }
 
   !parent.skipRegister && parent.root.register(computedId.value, parent.id.value, isGroup)

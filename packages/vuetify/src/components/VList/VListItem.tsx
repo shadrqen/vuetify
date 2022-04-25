@@ -69,6 +69,7 @@ export const VListItem = genericComponent<new () => {
     appendIcon: String,
     disabled: Boolean,
     lines: String as PropType<'one' | 'two' | 'three'>,
+    nav: Boolean,
     prependAvatar: String,
     prependIcon: String,
     subtitle: String,
@@ -89,11 +90,12 @@ export const VListItem = genericComponent<new () => {
   setup (props, { attrs, slots }) {
     const link = useLink(props, attrs)
     const id = computed(() => props.value ?? link.href.value)
-    const { select, isSelected, root, parent } = useNestedItem(id, false)
+    const { select, isSelected, isIndeterminate, isGroupActivator, root, parent } = useNestedItem(id, false)
     const list = useList()
     const isActive = computed(() => {
       return props.active || link.isExactActive?.value || isSelected.value
     })
+    const roundedProps = computed(() => props.rounded || props.nav)
     const variantProps = computed(() => ({
       color: isActive.value ? props.activeColor ?? props.color : props.color,
       variant: props.variant,
@@ -117,13 +119,14 @@ export const VListItem = genericComponent<new () => {
     const { densityClasses } = useDensity(props)
     const { dimensionStyles } = useDimension(props)
     const { elevationClasses } = useElevation(props)
-    const { roundedClasses } = useRounded(props)
+    const { roundedClasses } = useRounded(roundedProps)
     const lineClasses = computed(() => props.lines ? `v-list-item--${props.lines}-line` : undefined)
 
     const slotProps = computed(() => ({
       isActive: isActive.value,
       select,
       isSelected: isSelected.value,
+      isIndeterminate: isIndeterminate.value,
     }))
 
     useSelectLink(link, select)
@@ -148,6 +151,7 @@ export const VListItem = genericComponent<new () => {
               'v-list-item--active': isActive.value,
               'v-list-item--disabled': props.disabled,
               'v-list-item--link': isClickable,
+              'v-list-item--nav': props.nav,
               'v-list-item--prepend': !hasPrepend && list?.hasPrepend.value,
               [`${props.activeClass}`]: isActive.value,
             },
@@ -167,6 +171,8 @@ export const VListItem = genericComponent<new () => {
           href={ link.href.value }
           tabindex={ isClickable ? 0 : undefined }
           onClick={ isClickable && ((e: MouseEvent) => {
+            if (isGroupActivator) return
+
             link.navigate?.(e)
             select(!isSelected.value, e)
           })}

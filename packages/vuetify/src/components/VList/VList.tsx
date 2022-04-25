@@ -127,6 +127,7 @@ export const VList = genericComponent<new <T>() => {
         density: toRef(props, 'density'),
         disabled: toRef(props, 'disabled'),
         lines: toRef(props, 'lines'),
+        nav: toRef(props, 'nav'),
         variant: toRef(props, 'variant'),
       },
     })
@@ -153,15 +154,7 @@ export const VList = genericComponent<new <T>() => {
             dimensionStyles.value,
           ]}
         >
-          <VListChildren items={ items.value }>
-            {{
-              default: slots.default,
-              item: slots.item,
-              title: slots.title,
-              subtitle: slots.subtitle,
-              header: slots.header,
-            }}
-          </VListChildren>
+          <VListChildren items={ items.value } v-slots={ slots }></VListChildren>
         </props.tag>
       )
     })

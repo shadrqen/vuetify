@@ -134,12 +134,14 @@ export const VSelect = genericComponent<new <T>() => {
     }
     function select (item: any) {
       if (props.multiple) {
-        const index = selections.value.findIndex(selection => selection.value === item.value)
+        const index = selected.value.findIndex(selection => selection === item.value)
 
         if (index === -1) {
-          model.value.push(item.value)
+          model.value = [...model.value, item.value]
         } else {
-          model.value = selected.value.filter(selection => selection !== item.value)
+          const value = [...model.value]
+          value.splice(index, 1)
+          model.value = value
         }
       } else {
         model.value = [item.value]
@@ -191,9 +193,9 @@ export const VSelect = genericComponent<new <T>() => {
                       selected={ selected.value }
                       selectStrategy={ props.multiple ? 'independent' : 'single-independent' }
                     >
-                      { !items.value.length && !props.hideNoData && (
+                      { !items.value.length && !props.hideNoData && (slots['no-data']?.() ?? (
                         <VListItem title={ t(props.noDataText) } />
-                      ) }
+                      )) }
 
                       { items.value.map(item => (
                         <VListItem

@@ -138,18 +138,23 @@ export const VAutocomplete = genericComponent<new <T>() => {
         isPristine.value = true
       }
     }
+    function onInput (e: InputEvent) {
+      search.value = (e.target as HTMLInputElement).value
+    }
     function onAfterLeave () {
       if (isFocused.value) isPristine.value = true
     }
     const isSelecting = ref(false)
     function select (item: any) {
       if (props.multiple) {
-        const index = selections.value.findIndex(selection => selection.value === item.value)
+        const index = selected.value.findIndex(selection => selection === item.value)
 
         if (index === -1) {
-          model.value.push(item.value)
+          model.value = [...model.value, item.value]
         } else {
-          model.value = selected.value.filter(selection => selection !== item.value)
+          const value = [...model.value]
+          value.splice(index, 1)
+          model.value = value
         }
       } else {
         model.value = [item.value]
@@ -195,7 +200,8 @@ export const VAutocomplete = genericComponent<new <T>() => {
       return (
         <VTextField
           ref={ vTextFieldRef }
-          v-model={ search.value }
+          modelValue={ search.value }
+          onInput={ onInput }
           class={[
             'v-autocomplete',
             {
@@ -231,9 +237,9 @@ export const VAutocomplete = genericComponent<new <T>() => {
                       selected={ selected.value }
                       selectStrategy={ props.multiple ? 'independent' : 'single-independent' }
                     >
-                      { !filteredItems.value.length && !props.hideNoData && (
+                      { !filteredItems.value.length && !props.hideNoData && (slots['no-data']?.() ?? (
                         <VListItem title={ t(props.noDataText) } />
-                      ) }
+                      )) }
 
                       { filteredItems.value.map(({ item, matches }) => (
                         <VListItem

@@ -70,9 +70,10 @@ export const VCombobox = genericComponent<new <T>() => {
 
   emits: {
     'update:modelValue': (val: any) => true,
+    'update:searchInput': (val: string) => true,
   },
 
-  setup (props, { slots }) {
+  setup (props, { emit, slots }) {
     const { t } = useLocale()
     const vTextFieldRef = ref()
     const activator = ref()
@@ -117,6 +118,10 @@ export const VCombobox = genericComponent<new <T>() => {
         isPristine.value = !val
       },
     })
+    watch(_search, value => {
+      emit('update:searchInput', value)
+    })
+
     const { filteredItems } = useFilter(props, items, computed(() => isPristine.value ? undefined : search.value))
 
     const selections = computed(() => {
@@ -222,17 +227,22 @@ export const VCombobox = genericComponent<new <T>() => {
         search.value = ''
       }
     }
+    function onInput (e: InputEvent) {
+      search.value = (e.target as HTMLInputElement).value
+    }
     function onAfterLeave () {
       if (isFocused.value) isPristine.value = true
     }
     function select (item: any) {
       if (props.multiple) {
-        const index = selections.value.findIndex(selection => selection.value === item.value)
+        const index = selected.value.findIndex(selection => selection === item.value)
 
         if (index === -1) {
-          model.value.push(item.value)
+          model.value = [...model.value, item.value]
         } else {
-          model.value = selected.value.filter(selection => selection !== item.value)
+          const value = [...model.value]
+          value.splice(index, 1)
+          model.value = value
         }
 
         search.value = ''
@@ -263,7 +273,7 @@ export const VCombobox = genericComponent<new <T>() => {
 
         if (!props.multiple || !search.value) return
 
-        model.value.push(search.value)
+        model.value = [...model.value, search.value]
         search.value = ''
       }
     })
@@ -274,7 +284,8 @@ export const VCombobox = genericComponent<new <T>() => {
       return (
         <VTextField
           ref={ vTextFieldRef }
-          v-model={ search.value }
+          modelValue={ search.value }
+          onInput={ onInput }
           class={[
             'v-combobox',
             {
@@ -311,9 +322,9 @@ export const VCombobox = genericComponent<new <T>() => {
                       selected={ selected.value }
                       selectStrategy={ props.multiple ? 'independent' : 'single-independent' }
                     >
-                      { !filteredItems.value.length && !props.hideNoData && (
+                      { !filteredItems.value.length && !props.hideNoData && (slots['no-data']?.() ?? (
                         <VListItem title={ t(props.noDataText) } />
-                      ) }
+                      )) }
 
                       { filteredItems.value.map(({ item, matches }) => (
                         <VListItem

@@ -103,8 +103,6 @@ export const VField = genericComponent<new <T>() => {
 
   emits: {
     'click:clear': (e: MouseEvent) => true,
-    'click:prepend-inner': (e: MouseEvent) => true,
-    'click:append-inner': (e: MouseEvent) => true,
     'click:control': (e: MouseEvent) => true,
     'update:focused': (focused: boolean) => true,
     'update:modelValue': (val: any) => true,
@@ -213,6 +211,7 @@ export const VField = genericComponent<new <T>() => {
               'v-field--prepended': hasPrepend,
               'v-field--reverse': props.reverse,
               'v-field--single-line': props.singleLine,
+              'v-field--has-label': !!label,
               [`v-field--variant-${props.variant}`]: true,
             },
             themeClasses.value,
@@ -242,7 +241,7 @@ export const VField = genericComponent<new <T>() => {
             >
               { props.prependInnerIcon && (
                 <VIcon
-                  onClick={ (e: MouseEvent) => emit('click:prepend-inner', e) }
+                  onClick={ attrs['onClick:prependInner'] }
                   icon={ props.prependInnerIcon }
                 />
               ) }
@@ -304,7 +303,7 @@ export const VField = genericComponent<new <T>() => {
 
               { props.appendInnerIcon && (
                 <VIcon
-                  onClick={ (e: MouseEvent) => emit('click:append-inner', e) }
+                  onClick={ attrs['onClick:appendInner'] }
                   icon={ props.appendInnerIcon }
                 />
               ) }

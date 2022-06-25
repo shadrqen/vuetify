@@ -71,7 +71,7 @@ export const VBtn = defineComponent({
     ...makeSizeProps(),
     ...makeTagProps({ tag: 'button' }),
     ...makeThemeProps(),
-    ...makeVariantProps({ variant: 'contained' } as const),
+    ...makeVariantProps({ variant: 'elevated' } as const),
   },
 
   setup (props, { attrs, slots }) {
@@ -89,7 +89,7 @@ export const VBtn = defineComponent({
     const link = useLink(props, attrs)
     const isDisabled = computed(() => group?.disabled.value || props.disabled)
     const isElevated = computed(() => {
-      return props.variant === 'contained' && !(props.disabled || props.flat || props.border)
+      return props.variant === 'elevated' && !(props.disabled || props.flat || props.border)
     })
 
     useSelectLink(link, group?.select)
@@ -148,6 +148,7 @@ export const VBtn = defineComponent({
           <span class="v-btn__content" data-no-activator="">
             { !props.icon && props.prependIcon && (
               <VIcon
+                key="prependIcon"
                 class="v-btn__icon"
                 icon={ props.prependIcon }
                 start
@@ -158,6 +159,7 @@ export const VBtn = defineComponent({
               ? slots.default?.()
               : (
                 <VIcon
+                  key="icon"
                   class="v-btn__icon"
                   icon={ props.icon }
                   size={ props.size }
@@ -167,6 +169,7 @@ export const VBtn = defineComponent({
 
             { !props.icon && props.appendIcon && (
               <VIcon
+                key="appendIcon"
                 class="v-btn__icon"
                 icon={ props.appendIcon }
                 end
@@ -175,7 +178,7 @@ export const VBtn = defineComponent({
           </span>
 
           { props.loading && (
-            <span class="v-btn__loader">
+            <span key="loader" class="v-btn__loader">
               { slots.loader ? slots.loader() : (
                 <VProgressCircular
                   indeterminate
